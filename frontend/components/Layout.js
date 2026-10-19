@@ -12,6 +12,8 @@ export default function Layout({ children }) {
             <Link href="/laboratorios">Laboratórios</Link>
             <Link href="/salas">Salas</Link>
             <Link href="/status">Status</Link>
+            <Link href="/reservas">Reservas</Link>
+            <Link href="/consulta">Consulta</Link>
           </nav>
         </div>
       </header>

@@ -70,3 +70,61 @@ BEGIN
         ('RESERVADO', 'Reservado');
 END
 GO
+-- Tabela de Reservas (Etapa 2)
+IF OBJECT_ID('dbo.Reserva', 'U') IS NULL
+BEGIN
+    CREATE TABLE Reserva (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+
+        usuario_id INT NOT NULL,
+
+        tipo_recurso VARCHAR(20) NOT NULL,
+
+        laboratorio_id INT NULL,
+        sala_id INT NULL,
+
+        data_inicio DATE NOT NULL,
+        data_fim DATE NOT NULL,
+
+        hora_inicio TIME NOT NULL,
+        hora_fim TIME NOT NULL,
+
+        status_id INT NOT NULL,
+
+        CONSTRAINT FK_Reserva_Usuario
+            FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
+
+        CONSTRAINT FK_Reserva_Laboratorio
+            FOREIGN KEY (laboratorio_id) REFERENCES Laboratorio(id),
+
+        CONSTRAINT FK_Reserva_Sala
+            FOREIGN KEY (sala_id) REFERENCES Sala(id),
+
+        CONSTRAINT FK_Reserva_Status
+            FOREIGN KEY (status_id) REFERENCES Status(id),
+
+        CONSTRAINT CK_Reserva_TipoRecurso
+            CHECK (tipo_recurso IN ('Laboratorio', 'Sala')),
+
+        CONSTRAINT CK_Reserva_Recurso
+            CHECK (
+                (tipo_recurso = 'Laboratorio'
+                    AND laboratorio_id IS NOT NULL
+                    AND sala_id IS NULL)
+                OR
+                (tipo_recurso = 'Sala'
+                    AND sala_id IS NOT NULL
+                    AND laboratorio_id IS NULL)
+            ),
+
+        CONSTRAINT CK_Reserva_Datas
+            CHECK (data_fim >= data_inicio),
+
+        CONSTRAINT CK_Reserva_Horarios
+            CHECK (
+                data_fim > data_inicio
+                OR hora_fim > hora_inicio
+            )
+    );
+END
+GO
