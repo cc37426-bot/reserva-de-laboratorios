@@ -1,4 +1,4 @@
-# Sistema de Reserva de Laboratórios e Salas — Etapa 1
+# Sistema de Reserva de Laboratórios e Salas
 
 Cadastros implementados nesta etapa (entrega até 06/10/2026):
 - Usuários (CPF, nome, data de nascimento, celular, e-mail, login e senha)
