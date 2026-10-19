@@ -48,15 +48,3 @@ npm run dev
 Acesse `http://localhost:3000`. O menu tem as 4 telas de cadastro, cada uma com
 formulário de criação/edição e uma lista com os registros (editar/excluir).
 
-## 4. Para a entrega
-
-- Suba este código no GitHub (crie o repositório da dupla).
-- Cole o link do repositório no Classroom da disciplina Prática Profissional,
-  até 06/10/2026.
-- Qualquer material consultado (sites, vídeos, IA) para codificar deve constar
-  na bibliografia do projeto — cópia direta não é aceita.
-
-## Próximas etapas (não fazem parte desta entrega)
-
-- Tela principal com menu, reserva de recursos e consulta de reservas (até 20/10/2026)
-- Tela de login (até 10/11/2026, junto com a entrega final)
