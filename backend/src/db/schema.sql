@@ -128,3 +128,18 @@ BEGIN
     );
 END
 GO
+-- Tabela de Acessos (Etapa 3): registra toda tentativa de login
+IF OBJECT_ID('dbo.Acesso', 'U') IS NULL
+BEGIN
+    CREATE TABLE Acesso (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        usuario_id INT NULL,
+        login_informado VARCHAR(50) NOT NULL,
+        data_acesso DATETIME NOT NULL DEFAULT GETDATE(),
+        sucesso BIT NOT NULL,
+        ip VARCHAR(45) NULL,
+        CONSTRAINT FK_Acesso_Usuario
+            FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE SET NULL
+    );
+END
+GO

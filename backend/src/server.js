@@ -7,6 +7,7 @@ const laboratorioRoutes = require('./routes/laboratorioRoutes');
 const salaRoutes = require('./routes/salaRoutes');
 const statusRoutes = require('./routes/statusRoutes');
 const reservaRoutes = require('./routes/reservaRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/laboratorios', laboratorioRoutes);
 app.use('/api/salas', salaRoutes);
 app.use('/api/status', statusRoutes);
 app.use('/api/reservas', reservaRoutes);
+app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
