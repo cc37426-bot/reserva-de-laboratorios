@@ -57,6 +57,8 @@ export default function Login() {
           </div>
         </form>
       </div>
+    <p style={{ marginTop: '16px' }}>Não tem login? <a href="/cadastro">Criar conta</a></p>
     </main>
   );
 }
+
