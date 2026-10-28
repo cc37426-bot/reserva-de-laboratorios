@@ -1,3 +1,5 @@
+// Carrega as variaveis do .env, cria o servidor Express, liga CORS e JSON,
+// registra as rotas (/api/...) e sobe o servidor na porta 3001.
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');

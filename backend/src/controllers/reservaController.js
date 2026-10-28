@@ -46,6 +46,11 @@ function validar(b) {
   return null;
 }
 
+// Retorna true se o inicio da reserva (data + hora) ja passou
+function inicioJaPassou(data, hora) {
+  const inicio = new Date(`${data}T${hora.slice(0, 5)}`);
+  return inicio < new Date();
+}
 // Liga os parametros comuns de criar/atualizar em uma request do mssql
 function bindCampos(request, b) {
   const labId = b.tipo_recurso === 'Laboratorio' ? b.laboratorio_id : null;
@@ -162,6 +167,10 @@ exports.criar = async (req, res) => {
   if (erro) return res.status(400).json({ erro });
   try {
     const pool = await getPool();
+    // Nao permite reservar em horario que ja passou
+    if (inicioJaPassou(req.body.data_inicio, req.body.hora_inicio)) {
+      return res.status(400).json({ erro: 'Nao e possivel reservar em um horario que ja passou.' });
+    }
     if (await temConflito(pool, req.body)) {
       return res.status(409).json({ erro: 'Ja existe uma reserva para este recurso neste periodo.' });
     }
@@ -188,6 +197,18 @@ exports.atualizar = async (req, res) => {
   try {
     const pool = await getPool();
     const id = Number(req.params.id);
+    // So bloqueia se a data ou a hora de inicio foram alteradas para o passado
+    const atual = await pool.request().input('id', sql.Int, id).query(
+      `SELECT CONVERT(VARCHAR(10), data_inicio, 23) AS data_inicio,
+              CONVERT(VARCHAR(5), hora_inicio, 108) AS hora_inicio
+       FROM Reserva WHERE id = @id`
+    );
+    const mudouInicio = !atual.recordset.length
+      || atual.recordset[0].data_inicio !== req.body.data_inicio
+      || atual.recordset[0].hora_inicio !== req.body.hora_inicio.slice(0, 5);
+    if (mudouInicio && inicioJaPassou(req.body.data_inicio, req.body.hora_inicio)) {
+      return res.status(400).json({ erro: 'Nao e possivel reservar em um horario que ja passou.' });
+    }
     if (await temConflito(pool, req.body, id)) {
       return res.status(409).json({ erro: 'Ja existe uma reserva para este recurso neste periodo.' });
     }

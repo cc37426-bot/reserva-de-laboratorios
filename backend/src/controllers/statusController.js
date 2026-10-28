@@ -78,8 +78,13 @@ async function remover(req, res) {
     }
     res.json({ mensagem: 'Status removido com sucesso.' });
   } catch (err) {
+    // Erro 547 do SQL Server = o status ainda e usado em alguma reserva
+    if (err.number === 547) {
+      return res.status(409).json({ erro: 'Este status esta sendo usado em reservas e nao pode ser excluido.' });
+    }
     res.status(500).json({ erro: err.message });
   }
 }
 
 module.exports = { listar, buscarPorId, criar, atualizar, remover };
+

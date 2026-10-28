@@ -14,21 +14,21 @@ export default function Home() {
 
       <div className="grid-menu">
         <a href="/reservas">
-          📅 Reservar recursos
+          Reservar recursos
         </a>
 
         <a href="/consulta">
-          🔎 Consultar reservas
+          Consultar reservas
         </a>
       </div>
 
       <h3>Cadastros</h3>
 
       <div className="grid-menu">
-        <a href="/usuarios">👤 Usuários</a>
-        <a href="/laboratorios">🔬 Laboratórios</a>
-        <a href="/salas">🏫 Salas</a>
-        <a href="/status">🏷️ Status</a>
+        <a href="/usuarios">Usuários</a>
+        <a href="/laboratorios">Laboratórios</a>
+        <a href="/salas">Salas</a>
+        <a href="/status">Status</a>
       </div>
     </Layout>
   );
