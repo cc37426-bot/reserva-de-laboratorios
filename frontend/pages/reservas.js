@@ -1,9 +1,13 @@
+// reservas.js - Tela de reserva de laboratorios e salas. A reserva e sempre feita
+// no nome do usuario logado (guardado no navegador pelo login). Mostra o
+// formulario (recurso, periodo, horario e status) e a lista, com editar e excluir.
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { listar, criar, atualizar, remover } from '../lib/api';
 
 const VAZIO = {
   usuario_id: '',
+  usuario_nome: '',
   tipo_recurso: 'Laboratorio',
   recurso_id: '',
   data_inicio: '',
@@ -21,10 +25,10 @@ function formatarData(iso) {
 
 export default function Reservas() {
   const [reservas, setReservas] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
   const [laboratorios, setLaboratorios] = useState([]);
   const [salas, setSalas] = useState([]);
   const [statusLista, setStatusLista] = useState([]);
+  const [logado, setLogado] = useState(null);
   const [form, setForm] = useState(VAZIO);
   const [editandoId, setEditandoId] = useState(null);
   const [erro, setErro] = useState('');
@@ -40,13 +44,11 @@ export default function Reservas() {
 
   async function carregarOpcoes() {
     try {
-      const [u, l, s, st] = await Promise.all([
-        listar('usuarios'),
+      const [l, s, st] = await Promise.all([
         listar('laboratorios'),
         listar('salas'),
         listar('status')
       ]);
-      setUsuarios(u);
       setLaboratorios(l);
       setSalas(s);
       setStatusLista(st);
@@ -56,6 +58,11 @@ export default function Reservas() {
   }
 
   useEffect(() => {
+    // Usuario que fez login (salvo pela tela de login)
+    try {
+      const salvo = localStorage.getItem('usuario');
+      if (salvo) setLogado(JSON.parse(salvo));
+    } catch (e) {}
     carregarOpcoes();
     carregarReservas();
   }, []);
@@ -78,10 +85,15 @@ export default function Reservas() {
     e.preventDefault();
     setErro('');
     setSucesso('');
+    if (!logado) {
+      setErro('Usuario nao identificado. Faca login novamente.');
+      return;
+    }
     try {
       const ehLab = form.tipo_recurso === 'Laboratorio';
       const payload = {
-        usuario_id: Number(form.usuario_id),
+        // Reserva nova: usuario logado. Edicao: mantem o dono original da reserva.
+        usuario_id: editandoId ? Number(form.usuario_id) : logado.id,
         tipo_recurso: form.tipo_recurso,
         laboratorio_id: ehLab ? Number(form.recurso_id) : null,
         sala_id: ehLab ? null : Number(form.recurso_id),
@@ -109,6 +121,7 @@ export default function Reservas() {
     setEditandoId(item.id);
     setForm({
       usuario_id: String(item.usuario_id),
+      usuario_nome: item.usuario_nome,
       tipo_recurso: item.tipo_recurso,
       recurso_id: String(item.tipo_recurso === 'Laboratorio' ? item.laboratorio_id : item.sala_id),
       data_inicio: item.data_inicio,
@@ -137,7 +150,7 @@ export default function Reservas() {
   return (
     <Layout>
       <h2>Reserva de Laboratórios e Salas</h2>
-      <p className="subtitulo">Período, horário, usuário, recurso e status da reserva.</p>
+      <p className="subtitulo">Período, horário, recurso e status da reserva.</p>
 
       {erro && <div className="mensagem-erro">{erro}</div>}
       {sucesso && <div className="mensagem-sucesso">{sucesso}</div>}
@@ -147,12 +160,11 @@ export default function Reservas() {
           <div className="form-grid">
             <label>
               Usuário
-              <select value={form.usuario_id} onChange={(e) => onChange('usuario_id', e.target.value)} required>
-                <option value="">Selecione...</option>
-                {usuarios.map((u) => (
-                  <option key={u.id} value={u.id}>{u.nome_completo}</option>
-                ))}
-              </select>
+              <input
+                value={editandoId ? form.usuario_nome : (logado ? logado.nome_completo : '')}
+                readOnly
+                disabled
+              />
             </label>
             <label>
               Tipo de recurso

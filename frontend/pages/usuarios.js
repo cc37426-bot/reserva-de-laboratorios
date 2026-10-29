@@ -1,6 +1,9 @@
+// usuarios.js - Lista de usuarios do sistema. Aqui nao se cadastra usuario novo:
+// o cadastro e feito apenas na tela de login ("Criar conta"). Esta tela permite
+// consultar, editar (o formulario so aparece ao clicar em Editar) e excluir.
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import { listar, criar, atualizar, remover } from '../lib/api';
+import { listar, atualizar, remover } from '../lib/api';
 
 const VAZIO = {
   cpf: '',
@@ -45,18 +48,14 @@ export default function Usuarios() {
     e.preventDefault();
     setErro('');
     setSucesso('');
+    if (!editandoId) return; // nao existe cadastro novo nesta tela
     try {
       const payload = { ...form };
-      if (editandoId && !payload.senha) {
-        delete payload.senha; // mantem a senha atual se o campo ficar em branco na edicao
+      if (!payload.senha) {
+        delete payload.senha; // mantem a senha atual se o campo ficar em branco
       }
-      if (editandoId) {
-        await atualizar('usuarios', editandoId, payload);
-        setSucesso('Usuário atualizado com sucesso.');
-      } else {
-        await criar('usuarios', payload);
-        setSucesso('Usuário cadastrado com sucesso.');
-      }
+      await atualizar('usuarios', editandoId, payload);
+      setSucesso('Usuário atualizado com sucesso.');
       limparFormulario();
       carregar();
     } catch (e) {
@@ -77,6 +76,7 @@ export default function Usuarios() {
     });
     setErro('');
     setSucesso('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function onRemover(id) {
@@ -91,89 +91,88 @@ export default function Usuarios() {
 
   return (
     <Layout>
-      <h2>Cadastro de Usuários</h2>
-      <p className="subtitulo">CPF, nome completo, data de nascimento, celular, e-mail, login e senha.</p>
+      <h2>Usuários</h2>
+      <p className="subtitulo">
+        Lista dos usuários do sistema. Para cadastrar um novo usuário, use “Criar conta” na tela de login.
+      </p>
 
       {erro && <div className="mensagem-erro">{erro}</div>}
       {sucesso && <div className="mensagem-sucesso">{sucesso}</div>}
 
-      <div className="card">
-        <form onSubmit={onSalvar}>
-          <div className="form-grid">
-            <label>
-              CPF
-              <input
-                value={form.cpf}
-                onChange={(e) => onChange('cpf', e.target.value.replace(/\D/g, ''))}
-                maxLength={11}
-                placeholder="Somente números"
-                required
-              />
-            </label>
-            <label>
-              Nome completo
-              <input
-                value={form.nome_completo}
-                onChange={(e) => onChange('nome_completo', e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              Data de nascimento
-              <input
-                type="date"
-                value={form.data_nascimento}
-                onChange={(e) => onChange('data_nascimento', e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              Celular
-              <input
-                value={form.celular}
-                onChange={(e) => onChange('celular', e.target.value)}
-                placeholder="(00) 00000-0000"
-              />
-            </label>
-            <label>
-              E-mail
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => onChange('email', e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              Login
-              <input
-                value={form.login}
-                onChange={(e) => onChange('login', e.target.value)}
-                required
-              />
-            </label>
-            <label className="form-full">
-              Senha {editandoId && '(deixe em branco para manter a atual)'}
-              <input
-                type="password"
-                value={form.senha}
-                onChange={(e) => onChange('senha', e.target.value)}
-                required={!editandoId}
-              />
-            </label>
-          </div>
-          <div className="botoes">
-            <button type="submit" className="btn-primario">
-              {editandoId ? 'Salvar alterações' : 'Cadastrar usuário'}
-            </button>
-            {editandoId && (
+      {editandoId && (
+        <div className="card">
+          <form onSubmit={onSalvar}>
+            <div className="form-grid">
+              <label>
+                CPF
+                <input
+                  value={form.cpf}
+                  onChange={(e) => onChange('cpf', e.target.value.replace(/\D/g, ''))}
+                  maxLength={11}
+                  placeholder="Somente números"
+                  required
+                />
+              </label>
+              <label>
+                Nome completo
+                <input
+                  value={form.nome_completo}
+                  onChange={(e) => onChange('nome_completo', e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Data de nascimento
+                <input
+                  type="date"
+                  value={form.data_nascimento}
+                  onChange={(e) => onChange('data_nascimento', e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Celular
+                <input
+                  value={form.celular}
+                  onChange={(e) => onChange('celular', e.target.value)}
+                  placeholder="(00) 00000-0000"
+                />
+              </label>
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => onChange('email', e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Login
+                <input
+                  value={form.login}
+                  onChange={(e) => onChange('login', e.target.value)}
+                  required
+                />
+              </label>
+              <label className="form-full">
+                Senha (deixe em branco para manter a atual)
+                <input
+                  type="password"
+                  value={form.senha}
+                  onChange={(e) => onChange('senha', e.target.value)}
+                />
+              </label>
+            </div>
+            <div className="botoes">
+              <button type="submit" className="btn-primario">Salvar alterações</button>
               <button type="button" className="btn-secundario" onClick={limparFormulario}>
                 Cancelar
               </button>
-            )}
-          </div>
-        </form>
-      </div>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="card">
         <table>
